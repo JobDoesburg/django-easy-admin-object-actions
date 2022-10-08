@@ -1,30 +1,19 @@
-from django.contrib import admin
-
-
-class ObjectActionsMixin(admin.ModelAdmin):
+class ObjectActionsMixin:
     change_form_template = "object_actions/admin/change_form.html"
-    object_actions = []
 
-    def render_change_form(
-        self, request, context, add=False, change=False, form_url="", obj=None
-    ):
-        """Add object actions to the context."""
-        context["object_actions_before_fieldsets"] = filter(
-            lambda x: x["display_position"] == "before_fieldsets",
-            self.get_object_actions(request, obj),
-        )
-        context["object_actions_after_fieldsets"] = filter(
-            lambda x: x["display_position"] == "after_fieldsets",
-            self.get_object_actions(request, obj),
-        )
-        context["object_actions_after_related_objects"] = filter(
-            lambda x: x["display_position"] == "after_related_objects",
-            self.get_object_actions(request, obj),
-        )
-        return super().render_change_form(request, context, add, change, form_url, obj)
+    object_actions_before_fieldsets = []
+    object_actions_after_fieldsets = []
+    object_actions_after_related_objects = []
 
-    def get_object_actions(self, request, obj=None):
-        for action_name in self.object_actions:
+    def _get_all_object_actions(self):
+        return (
+            self.object_actions_before_fieldsets
+            + self.object_actions_after_fieldsets
+            + self.object_actions_after_related_objects
+        )
+
+    def _get_object_actions(self, actions, request, obj=None):
+        for action_name in actions:
             if callable(action_name):
                 action = action_name
             else:
@@ -53,6 +42,7 @@ class ObjectActionsMixin(admin.ModelAdmin):
                     "func": action,
                     "label": action.label,
                     "parameter_name": action.parameter_name,
+                    "confirmation": getattr(action, "confirmation", None),
                     "extra_classes": getattr(action, "extra_classes", None),
                     "display_position": action.display_position,
                     "disabled": not condition_met,
@@ -61,6 +51,9 @@ class ObjectActionsMixin(admin.ModelAdmin):
                         action, "perform_after_saving", False
                     ),
                 }
+
+    def get_object_actions(self, request, obj=None):
+        return self._get_object_actions(self._get_all_object_actions(), request, obj)
 
     def _get_object_actions_after_saving(self, request, obj):
         return filter(
@@ -78,7 +71,7 @@ class ObjectActionsMixin(admin.ModelAdmin):
             self.log_change(request, obj, action["log_message"])
         return action["func"](request, obj)
 
-    def _changeform_view(self, request, object_id, form_url, extra_context):
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         obj = self.get_object(request, object_id)
         for action in self._get_object_actions_before_saving(request, obj):
             if request.POST.get(action["parameter_name"]) and not action["disabled"]:
@@ -86,7 +79,7 @@ class ObjectActionsMixin(admin.ModelAdmin):
                 if response:
                     return response
 
-        return super()._changeform_view(request, object_id, form_url, extra_context)
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
     def response_change(self, request, obj):
         for action in self._get_object_actions_after_saving(request, obj):
@@ -96,3 +89,18 @@ class ObjectActionsMixin(admin.ModelAdmin):
                     return response
 
         return super().response_change(request, obj)
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        """Add object actions to the context."""
+        context["object_actions_before_fieldsets"] = self._get_object_actions(
+            self.object_actions_before_fieldsets, request, obj
+        )
+        context["object_actions_after_fieldsets"] = self._get_object_actions(
+            self.object_actions_after_fieldsets, request, obj
+        )
+        context["object_actions_after_related_objects"] = self._get_object_actions(
+            self.object_actions_after_related_objects, request, obj
+        )
+        return super().render_change_form(request, context, add, change, form_url, obj)
