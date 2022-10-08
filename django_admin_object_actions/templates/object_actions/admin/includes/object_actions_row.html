@@ -1,0 +1,9 @@
+{% for action in object_actions %}
+{% if forloop.first %}
+<div class="submit-row object-actions-row">
+{% endif %}
+<input type="submit" {% if action.disabled %}disabled {% endif %}value="{{ action.label }}" {% if action.extra_classes %}class="{{ action.extra_classes }}" {% endif %}name="{{ action.parameter_name }}">
+{% if forloop.last %}
+</div>
+{% endif %}
+{% endfor %}
