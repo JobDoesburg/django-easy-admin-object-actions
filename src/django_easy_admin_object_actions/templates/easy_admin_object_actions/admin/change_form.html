@@ -1,0 +1,17 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block field_sets %}
+    {% include "easy_admin_object_actions/admin/includes/object_actions_row.html" with object_actions=object_actions_before_fieldsets %}
+    {{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}
+    {% include "easy_admin_object_actions/admin/includes/object_actions_row.html" with object_actions=object_actions_after_fieldsets %}
+    {{ block.super }}
+{% endblock %}
+
+{% block after_related_objects %}
+    {% include "easy_admin_object_actions/admin/includes/object_actions_row.html" with object_actions=object_actions_after_related_objects %}
+    {{ block.super }}
+{% endblock %}

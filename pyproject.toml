@@ -1,5 +1,5 @@
 [project]
-name = "django-admin-object-actions"
+name = "django-easy-admin-object-actions"
 version = "1.0.0-alpha.1"
 description = "Django app to easily add actions to an object's admin change form"
 readme = "README.md"
@@ -24,9 +24,9 @@ dependencies = [
 requires-python = ">=3"
 
 [project.urls]
-homepage = "https://github.com/JobDoesburg/django-admin-object-actions"
-repository = "https://github.com/JobDoesburg/django-admin-object-actions"
-documentation = "https://github.com/JobDoesburg/django-admin-object-actions"
+homepage = "https://github.com/JobDoesburg/django-easy-admin-object-actions"
+repository = "https://github.com/JobDoesburg/django-easy-admin-object-actions"
+documentation = "https://github.com/JobDoesburg/django-easy-admin-object-actions"
 
 [build-system]
 requires      = ["setuptools>=61.0.0", "wheel"]

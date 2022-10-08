@@ -1,5 +1,5 @@
 class ObjectActionsMixin:
-    change_form_template = "object_actions/admin/change_form.html"
+    change_form_template = "easy_admin_object_actions/admin/change_form.html"
 
     object_actions_before_fieldsets = []
     object_actions_after_fieldsets = []

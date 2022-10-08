@@ -1,6 +1,6 @@
-# Django admin object actions
+# Django easy admin object actions
 
-Django admin object actions is a Django app that allows you easily to add buttons to the an object's admin change form page, to perform certain actions on the object.
+Django easy admin object actions is a Django app that allows you easily to add buttons to an object's admin change form page, to perform certain actions on the object.
 
 In this documentation, we use the term "object" to refer to the model instance that is being edited in the admin change form.
 As an example, we will consider an invoice model that has a status field, and we try to add a button to the change form page that allows us to send the invoice. There are, of course, many other use cases for this app.
@@ -8,27 +8,27 @@ As an example, we will consider an invoice model that has a status field, and we
 ## Installation
 1. Install using pip:
     ```bash
-    pip install django-admin-object-actions
+    pip install django-easy-admin-object-actions
     ```
-2. Add `django_admin_object_actions` to your `INSTALLED_APPS`:
+2. Add `django_easy_admin_object_actions` to your `INSTALLED_APPS`:
     ```python
     INSTALLED_APPS = [
         ...
-        'django_admin_object_actions',
+        'django_easy_admin_object_actions',
         ...
     ]
     ```
 3. Use the `ObjectActionsMixin` in your admin classes:
     ```python
     from django.contrib import admin
-    from django_admin_object_actions.admin import ObjectActionsMixin
+    from django_easy_admin_object_actions.admin import ObjectActionsMixin
 
     class MyModelAdmin(ObjectActionsMixin, admin.ModelAdmin):
         ...
     ```
 4. Implement object actions in your admin classes:
     ```python
-    from django_admin_object_actions.decorators import object_action
+    from django_easy_admin_object_actions.decorators import object_action
 
     class MyModelAdmin(ObjectActionsMixin, admin.ModelAdmin):
         ...
