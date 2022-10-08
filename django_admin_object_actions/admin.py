@@ -7,9 +7,9 @@ class ObjectActionsMixin:
 
     def _get_all_object_actions(self):
         return (
-            self.object_actions_before_fieldsets
-            + self.object_actions_after_fieldsets
-            + self.object_actions_after_related_objects
+            tuple(self.object_actions_before_fieldsets)
+            + tuple(self.object_actions_after_fieldsets)
+            + tuple(self.object_actions_after_related_objects)
         )
 
     def _get_object_actions(self, actions, request, obj=None):
@@ -44,7 +44,6 @@ class ObjectActionsMixin:
                     "parameter_name": action.parameter_name,
                     "confirmation": getattr(action, "confirmation", None),
                     "extra_classes": getattr(action, "extra_classes", None),
-                    "display_position": action.display_position,
                     "disabled": not condition_met,
                     "log_message": getattr(action, "log_message", None),
                     "perform_after_saving": getattr(
