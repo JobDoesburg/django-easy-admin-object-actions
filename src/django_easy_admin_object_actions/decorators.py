@@ -3,7 +3,6 @@ def object_action(
     parameter_name,
     confirmation=None,
     permissions=None,
-    description=None,
     extra_classes=None,
     condition=None,
     display_as_disabled_if_condition_not_met=False,
@@ -17,8 +16,6 @@ def object_action(
             func.confirmation = confirmation
         if permissions is not None:
             func.allowed_permissions = permissions
-        if description is not None:
-            func.short_description = description
         func.extra_classes = extra_classes
         if condition is not None:
             func.condition = condition
