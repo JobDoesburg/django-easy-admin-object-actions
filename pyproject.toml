@@ -1,6 +1,6 @@
 [project]
 name = "django-easy-admin-object-actions"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 description = "Django app to easily add actions to an object's admin change form"
 readme = "README.md"
 authors = [{ name = "Job Doesburg", email = "job.doesburg@gmail.com" }]
