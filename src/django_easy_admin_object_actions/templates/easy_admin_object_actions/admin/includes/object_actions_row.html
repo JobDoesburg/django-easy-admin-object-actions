@@ -2,7 +2,7 @@
 {% if forloop.first %}
 <div class="submit-row object-actions-row">
 {% endif %}
-<input type="submit" {% if action.disabled %}disabled {% endif %}value="{{ action.label }}" {% if action.extra_classes %}class="{{ action.extra_classes }}" {% endif %}name="{{ action.parameter_name }}" {% if action.confirmation %}onclick="if (!confirm({{ action.confirmation }})){return false}"{% endif %}>
+<input type="submit" {% if action.disabled %}disabled {% endif %}value="{{ action.label }}" {% if action.extra_classes %}class="{{ action.extra_classes }}" {% endif %}name="{{ action.parameter_name }}" {% if action.confirmation %}onclick="if (!confirm('{{ action.confirmation }}')){return false}"{% endif %}>
 {% if forloop.last %}
 </div>
 {% endif %}
