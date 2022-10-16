@@ -59,7 +59,7 @@ There are numerous ways to use this package. Here are some examples:
 - `label`: The label of the action button.
 - `parameter_name`: The name of the parameter that is used in the POST body to perform the action.
 - `confirmation`: A confirmation message that is alerted to the user when the action is performed. If `None`, no confirmation is required.
-- `permissions`: A list of permissions that are required to perform the action.
+- `permission`: A permission string that the user should have in order to perform the action. This check is done via `request.user.has_perm(permission)`. Note that this does *not* use the admin `has_<perm>_permission(request, obj)` methods that might have been overwritten for your admin.
 - `extra_classes`: A list of extra classes that are added to the action button. For example, `default` will make the button appear as a primary button.
 - `condition`: A function that determines whether the action should be shown. It should take the object and the request as an argument and should return a boolean. If the function returns `False`, the action cannot be used. For example, you can use this to only show the action if the object is in a certain state: `condition=lambda obj, request: obj.state == "draft"`.
 - `display_as_disabled_if_condition_not_met`: If `True`, the action button will be displayed as disabled if the condition is not met. If `False`, the action button will not be displayed at all if the condition is not met. Defaults to `True`.
