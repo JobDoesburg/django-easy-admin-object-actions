@@ -32,7 +32,8 @@ def object_action(
             func.func_queryset = lambda admin, request, queryset: admin.perform_object_action_on_queryset(
                 func, request, queryset
             )
-            func.after_queryset_action_callable = after_queryset_action_callable
+            if after_queryset_action_callable is not None:
+                func.after_queryset_action_callable = after_queryset_action_callable
         return func
 
     return decorator
