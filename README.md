@@ -57,7 +57,7 @@ There are numerous ways to use this package. Here are some examples:
 
 ### Available arguments for `object_action`
 - `label`: The label of the action button.
-- `parameter_name`: The name of the parameter that is used in the POST body to perform the action.
+- `parameter_name`: The name of the parameter that is used in the POST body to perform the action. Must be unique. Defaults to the name of the function, for example `send_invoice` will result in a parameter name of `_send_invoice`.
 - `confirmation`: A confirmation message that is alerted to the user when the action is performed. If `None`, no confirmation is required.
 - `permission`: A permission string that the user should have in order to perform the action. This check is done via `request.user.has_perm(permission)`. Note that this does *not* use the admin `has_<perm>_permission(request, obj)` methods that might have been overwritten for your admin.
 - `extra_classes`: A list of extra classes that are added to the action button. For example, `default` will make the button appear as a primary button.
@@ -65,12 +65,36 @@ There are numerous ways to use this package. Here are some examples:
 - `display_as_disabled_if_condition_not_met`: If `True`, the action button will be displayed as disabled if the condition is not met. If `False`, the action button will not be displayed at all if the condition is not met. Defaults to `True`.
 - `log_message`: A message that is logged when the action is performed. If `None`, no message is logged. For example, you can use this to log the action to the object's history: `log_message="Invoice sent"`. 
 - `perform_after_saving`: If `True`, the action is performed after any changes made in the object's form are saved. If `False`, the action is performed before the object is saved. Defaults to `False`.
-
+- `include_in_queryset_actions`: If `True`, the action is also available in the `changelist` view via the dropdown box. The action will run on all objects from the selected queryset and report how many were successful (returned a value that evaluates to `True`). If `False`, the action is only available in the `changeform` view. Defaults to `True`.
+- `after_queryset_action_callable`: A function that is called after the action has been performed on a queryset. It should take the request, the initial selected queryset, and the number of successful actions as arguments. For example, you can use this to redirect the user to a page that shows the results of the action: `after_queryset_action_callable=lambda request, queryset, num_successful: HttpResponseRedirect('https://crm.example.com/invoices/?ids={}'.format(','.join([str(obj.id) for obj in queryset])))`. Use this callable to report success messages to the user too. Note that this function is only called if the action was performed on a queryset, not if it was performed on a single object. Defaults to a method that shows a simple success message: 
+   ```python
+    msg = gettext("Applied '%(action_message)s' on %(count)s %(name)s.") % {
+        "action_message": action.label,
+        "count": count,
+        "name": model_ngettext(self.opts, count),
+    }
+    self.message_user(request, msg, messages.SUCCESS)
+   ```
+  
 ### Return values for object actions
 The actual action should return either `None` (or not return anything), or a `HttpResponse` object. If the action returns a `HttpResponse` object, the response is returned to the user instead of the default behavior of redirecting to the object's change page.
 This has the following implications:
 
 - If `perform_after_saving` is set to `False` and your action returns a `HttpResponse` object, only the action will be executed, but any changes made in the form will *not* be processed.
-- If `perform_after_saving` is set to `False` and your action returns `None`, the action will be executed and afterwards, the form data will be processed. This means that the action will be executed even if the form data is invalid. This can result in unexpected behaviour if the action changes the object in a way that is not compatible with the form data.
+- If `perform_after_saving` is set to `False` and your action returns no `HttpResponse` object (like `None` or `False`), the action will be executed and afterwards, the form data will be processed. This means that the action will be executed even if the form data is invalid. This can result in unexpected behaviour if the action changes the object in a way that is not compatible with the form data.
 - If `perform_after_saving` is set to `True`, first any changes made in the form will be processed and then the action will be executed. Depending on the action's return value, the user will either be redirected to the object's change page or the response returned by the action will be returned to the user. Note that the `condition` will be re-evaluated after the form data is processed, so the action might not actually be performed if the condition is not met anymore!
 
+The action's return value is also used to determine whether running the action was successful or not, when the action is performed on a queryset. If the action returns anything else that evaluates to `True`, the action is considered successful. If the action returns `None` or anything that evaluates to `False`, the action is considered unsuccessful.
+
+A good practice would thus be:
+
+```python
+def reject(self, request, obj):
+    if not obj.accepted == False:
+        obj.accepted = False
+        obj.save()
+        return redirect('some_url')
+    return False
+```
+
+This return value will evaluate to `True` if the object was rejected, and `False` if it was already rejected. Moreover, it will redirect if the object was rejected, and not redirect (so stay on the page) if it was already rejected. This way, the user will be redirected to the new page if the action was successful, and will stay on the current page if the action was unsuccessful.
