@@ -13,6 +13,7 @@ class ObjectActionsMixin:
     object_actions_after_related_objects = []
 
     def _get_all_object_actions(self):
+        """Get all object actions."""
         return (
             tuple(self.object_actions_before_fieldsets)
             + tuple(self.object_actions_after_fieldsets)
@@ -20,6 +21,7 @@ class ObjectActionsMixin:
         )
 
     def _get_object_actions(self, actions, request, obj=None):
+        """Get object actions."""
         for action_name in actions:
             if callable(action_name):
                 action = action_name
@@ -62,14 +64,17 @@ class ObjectActionsMixin:
                 }
 
     def get_object_actions(self, request, obj=None):
+        """Get all object actions."""
         return self._get_object_actions(self._get_all_object_actions(), request, obj)
 
     def _get_object_actions_after_saving(self, request, obj):
+        """Get object actions that should be performed after saving."""
         return filter(
             lambda x: x["perform_after_saving"], self.get_object_actions(request, obj)
         )
 
     def _get_object_actions_before_saving(self, request, obj):
+        """Get object actions that should be performed before saving."""
         if obj is None:
             return (
                 []
@@ -80,11 +85,13 @@ class ObjectActionsMixin:
         )
 
     def perform_object_action(self, action, request, obj):
+        """Perform the object action."""
         if action["log_message"]:
             self.log_change(request, obj, action["log_message"])
         return action["func"](request, obj)
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        """Perform object action before saving."""
         obj = self.get_object(request, object_id)
         for action in self._get_object_actions_before_saving(request, obj):
             if request.POST.get(action["parameter_name"]) and not action["disabled"]:
@@ -95,6 +102,7 @@ class ObjectActionsMixin:
         return super().changeform_view(request, object_id, form_url, extra_context)
 
     def response_change(self, request, obj):
+        """Perform object action after saving."""
         for action in self._get_object_actions_after_saving(request, obj):
             if request.POST.get(action["parameter_name"]) and not action["disabled"]:
                 response = self.perform_object_action(action, request, obj)
@@ -121,6 +129,7 @@ class ObjectActionsMixin:
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     def _get_queryset_object_actions(self, actions, request):
+        """Get queryset object actions."""
         for action_name in actions:
             if callable(action_name):
                 action = action_name
@@ -147,11 +156,13 @@ class ObjectActionsMixin:
                 }
 
     def get_queryset_object_actions(self, request):
+        """Get all queryset object actions."""
         return self._get_queryset_object_actions(
             self._get_all_object_actions(), request
         )
 
     def get_actions(self, request):
+        """Add queryset object actions to the actions."""
         actions = super().get_actions(request)
         object_actions = {
             action["name"]: (
@@ -164,6 +175,7 @@ class ObjectActionsMixin:
         return actions | object_actions
 
     def perform_object_action_on_queryset(self, action, request, queryset):
+        """Perform the object action on the queryset."""
         if hasattr(action, "permission") and not request.user.has_perm(
             action.permission
         ):
